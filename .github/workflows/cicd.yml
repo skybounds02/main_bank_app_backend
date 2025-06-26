@@ -73,16 +73,10 @@ jobs:
         for i in {1..3}; do
           git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/skybounds02/kubernetes-manifest.git && break || sleep 5
         done
-      
-    - name: Update Backend Image
-      run: |
         cd kubernetes-manifest
         git config --global user.email "philipsukonu@gmail.com"
         git config --global user.name "philips2005"
-
-    
         ESCAPED_REPO=$(echo "${{ vars.ECR_REPO }}" | sed 's/\./\\./g')
-
         sed -i "s|${ESCAPED_REPO}/bank-backendapi:[^[:space:]]*|${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}|g" ./bank-project/backendapi.yaml
         grep -q "${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}" ./bank-project/backendapi.yaml
         
