@@ -70,16 +70,20 @@ jobs:
           git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/skybounds02/kubernetes-manifest.git && break || sleep 5
         done
 
-    - name: updating manifests
+    - name: Update Backend Image
       run: |
         cd kubernetes-manifest
         git config --global user.email "philipsukonu@gmail.com"
         git config --global user.name "philips2005"
-
-        sed -i "s+${{ vars.ECR_REPO }}/bank-backendapi:.*+${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}+g" ./bank-project/backendapi.yaml
-
-        cat ./bank-project/backendapi.yaml | grep -q "${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}"
-
+    
+  
+        sed -i "s|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:.*|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:9|g" ./bank-project/backendapi.yaml
+    
+    
+        if ! grep -q "454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:9" ./bank-project/backendapi.yaml; then
+      echo "::error::Image tag update failed!"
+      exit 1
+    fi
     - name: pushing manifests
       run: |
         git add bank-project/backendapi.yaml
