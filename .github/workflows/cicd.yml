@@ -76,8 +76,10 @@ jobs:
 
     - name: find and enter k8s manifest
       run: |
-        cd kubernetes-manifest
-
+        cd kubernetes-manifest || exit 1
+        echo "Current directory: $(pwd)"
+        ls -la bank-project/ 
+        
     - name: configure user/email
       run: |
         git config --global user.email "philipsukonu@gmail.com"
