@@ -88,6 +88,7 @@ jobs:
 
     - name: update manifest
       run: |
+        cd kubernetes-manifest
         ESCAPED_REPO=$(echo "${{ vars.ECR_REPO }}" | sed 's/\./\\./g')
         sudo sed -i "s|${ESCAPED_REPO}/bank-backendapi:[^[:space:]]*|${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}|g" ./bank-project/backendapi.yaml
         sudo grep -q "${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}" ./bank-project/backendapi.yaml
