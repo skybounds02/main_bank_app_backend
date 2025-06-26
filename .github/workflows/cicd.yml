@@ -75,7 +75,7 @@ jobs:
         done
 
     - name: find and enter k8s manifest
-      run: 
+      run: |
         cd kubernetes-manifest
 
     - name: configure user/email
