@@ -91,6 +91,9 @@ jobs:
         cd kubernetes-manifest
         sed -i "s+${{ vars.ECR_REPO }}/bank-frontend:.*+${{ vars.ECR_REPO }}/bank-frontend:${{ github.run_number }}+g" ./bank-project/frontend.yaml
 
+    - name: update manifest
+      run: |
+        cd kubernetes-manifest
         cat ./bank-project/frontend.yaml | grep -q "${{ vars.ECR_REPO }}/bank-frontend:${{ github.run_number }}"
 
     - name: pushing manifests
