@@ -80,10 +80,8 @@ jobs:
         sed -i "s|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:.*|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:9|g" ./bank-project/backendapi.yaml
     
     
-        if ! grep -q "454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:9" ./bank-project/backendapi.yaml; then
-      echo "::error::Image tag update failed!"
-      exit 1
-    fi
+        grep "454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:9" ./bank-project/backendapi.yaml || (echo "::error::Image tag update failed!" && exit 1)
+    
     - name: pushing manifests
       run: |
         git add bank-project/backendapi.yaml
