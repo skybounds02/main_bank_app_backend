@@ -61,22 +61,26 @@ jobs:
     runs-on: self-hosted
     needs: Continues-Integration_build_and_push
     steps:
-    - name: Checkout repository
+    - name: Clone repository (with retry)
       env:
-          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
-          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
+        GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
+        GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
       run: |
-         git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/skybounds02/kubernetes-manifest.git
-         
-         cd kubernetes-manifest
-         git config --global user.email "philipsukonu@gmail.com"
-         git config --global user.name "philips2005"
+        for i in {1..3}; do
+          git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/skybounds02/kubernetes-manifest.git && break || sleep 5
+        done
 
-         sed -i "s+${{ vars.ECR_REPO }}/bank-backendapi:.*+${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}+g" ./bank-project/backendapi.yaml
+    - name: updating manifests
+      run: |
+        cd kubernetes-manifest
+        git config --global user.email "philipsukonu@gmail.com"
+        git config --global user.name "philips2005"
 
-         cat ./bank-project/backendapi.yaml | grep -q "${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}"
+        sed -i "s+${{ vars.ECR_REPO }}/bank-backendapi:.*+${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}+g" ./bank-project/backendapi.yaml
 
-         git add bank-project/backendapi.yaml
-         git commit -m "Update. backendapi image to version ${{ github.run_number }}"
-         git push origin main
+        cat ./bank-project/backendapi.yaml | grep -q "${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}"
+
+        git add bank-project/backendapi.yaml
+        git commit -m "Update. backendapi image to version ${{ github.run_number }}"
+        git push origin main
         
