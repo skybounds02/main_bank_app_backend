@@ -85,9 +85,9 @@ jobs:
          git config --global user.email "philipsukonu@gmail.com"
          git config --global user.name "philips2005"
 
-   #      sed -i "s+${{ vars.ECR_REPO }}/bank-backendapi:.*+${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}+g" ./bank-project/backendapi.yaml
+         sed -i "s+${{ vars.ECR_REPO }}/bank-backendapi:.*+${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}+g" ./bank-project/backendapi.yaml
 
-   #      cat ./bank-project/backendapi.yaml | grep -q "${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}"
+         cat ./bank-project/backendapi.yaml | grep -q "${{ vars.ECR_REPO }}/bank-backendapi:${{ github.run_number }}"
 
          git add bank-project/backendapi.yaml
          git commit -m "Update. backendapi image to version ${{ github.run_number }}"
