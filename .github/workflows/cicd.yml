@@ -75,13 +75,18 @@ jobs:
         cd kubernetes-manifest
         git config --global user.email "philipsukonu@gmail.com"
         git config --global user.name "philips2005"
+
+   
+        LATEST_TAG=$(aws ecr describe-images --repository-name bank-backendapi \
+                 --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' \
+                 --output text)
     
-  
-        sed -i "s|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:.*|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:9|g" ./bank-project/backendapi.yaml
+   
+        sed -i "s|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:.*|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:$LATEST_TAG|g" ./bank-project/backendapi.yaml
     
-    
-        grep "454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:9" ./bank-project/backendapi.yaml || (echo "::error::Image tag update failed!" && exit 1)
-    
+   
+        grep "454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:$LATEST_TAG" ./bank-project/backendapi.yaml || (echo "::error::Image tag update failed!" && exit 1)
+        
     - name: pushing manifests
       run: |
         git add bank-project/backendapi.yaml
