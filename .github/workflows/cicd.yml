@@ -59,7 +59,11 @@ jobs:
   
   Continues-Update_k8s_manifest:
     runs-on: self-hosted
-    needs: Continues-Integration_build_and_push
+    needs: Continues-Integration_build_and_push 
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: us-east-1
     steps:
     - name: Clone repository (with retry)
       env:
@@ -69,24 +73,21 @@ jobs:
         for i in {1..3}; do
           git clone https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/skybounds02/kubernetes-manifest.git && break || sleep 5
         done
-
+      
     - name: Update Backend Image
       run: |
         cd kubernetes-manifest
         git config --global user.email "philipsukonu@gmail.com"
         git config --global user.name "philips2005"
-
-   
-        LATEST_TAG=$(aws ecr describe-images --repository-name bank-backendapi \
-                 --query 'sort_by(imageDetails,& imagePushedAt)[-1].imageTags[0]' \
-                 --output text)
-    
-   
-        sed -i "s|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:.*|454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:$LATEST_TAG|g" ./bank-project/backendapi.yaml
-    
-   
-        grep "454592823186.dkr.ecr.us-east-1.amazonaws.com/bank-backendapi:$LATEST_TAG" ./bank-project/backendapi.yaml || (echo "::error::Image tag update failed!" && exit 1)
         
+      
+        NEW_TAG=${{ github.run_number }}
+      
+      
+        sed -i "s|${{ vars.ECR_REPO }}/bank-backendapi:.*|${{ vars.ECR_REPO }}/bank-backendapi:$NEW_TAG|g" ./bank-project/backendapi.yaml
+      
+    
+        grep "${{ vars.ECR_REPO }}/bank-backendapi:$NEW_TAG" ./bank-project/backendapi.yaml || (echo "::error::Image tag update failed!" && exit 1)
     - name: pushing manifests
       run: |
         git add bank-project/backendapi.yaml
